@@ -40,7 +40,7 @@ new class extends Component
                         <x-nav-link :href="route('admin.scholarships.create')" :active="request()->routeIs('admin.scholarships.create')" wire:navigate>
                             {{ __('Add Scholarship') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.scholarships.applications')" :active="request()->routeIs('admin.scholarships.applications')" wire:navigate>
+                        <x-nav-link :href="route('admin.scholarships.applications.index')" :active="request()->routeIs('admin.scholarships.applications.*')" wire:navigate>
                             {{ __('Applications') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.reports.scholarships')" :active="request()->routeIs('admin.reports.*')" wire:navigate>
@@ -115,7 +115,7 @@ new class extends Component
                 <x-responsive-nav-link :href="route('admin.scholarships.create')" :active="request()->routeIs('admin.scholarships.create')" wire:navigate>
                     {{ __('Add Scholarship') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.scholarships.applications')" :active="request()->routeIs('admin.scholarships.applications')" wire:navigate>
+                <x-responsive-nav-link :href="route('admin.scholarships.applications.index')" :active="request()->routeIs('admin.scholarships.applications.*')" wire:navigate>
                     {{ __('Applications') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.reports.scholarships')" :active="request()->routeIs('admin.reports.*')" wire:navigate>

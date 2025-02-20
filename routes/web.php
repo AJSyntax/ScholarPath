@@ -24,7 +24,8 @@ Route::get('/dashboard', function () {
 
 // Common Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile'); // Added this line
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -32,9 +33,7 @@ Route::middleware(['auth'])->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Scholarship Management
     Route::prefix('scholarships')->name('scholarships.')->group(function () {
@@ -47,9 +46,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('destroy');
         
         // Application Management
-        Route::get('/applications', [ScholarshipApplicationController::class, 'adminIndex'])->name('applications');
+        Route::get('/applications', [ScholarshipApplicationController::class, 'adminIndex'])->name('applications.index');
         Route::get('/applications/{application}', [ScholarshipApplicationController::class, 'adminShow'])->name('applications.show');
-        Route::put('/applications/{application}', [ScholarshipApplicationController::class, 'adminUpdate'])->name('applications.update');
+        Route::patch('/applications/{application}/status', [ScholarshipApplicationController::class, 'adminUpdateStatus'])->name('applications.update-status');
+        Route::get('/applications/{application}/document/{document}', [ScholarshipApplicationController::class, 'downloadDocument'])->name('applications.download-document');
     });
 
     // Reports

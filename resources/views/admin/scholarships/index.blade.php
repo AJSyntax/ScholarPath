@@ -5,12 +5,16 @@
                 {{ __('Manage Scholarships') }}
             </h2>
             <div class="flex space-x-4">
-                <a href="{{ route('admin.scholarships.applications') }}" 
+                <a href="{{ route('admin.scholarships.create') }}" 
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Add New Scholarship
+                </a>
+                <a href="{{ route('admin.scholarships.applications.index') }}" 
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     View Applications
                 </a>
-                <a href="{{ route('admin.reports') }}" 
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route('admin.reports.index') }}" 
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Generate Reports
                 </a>
             </div>
@@ -50,6 +54,21 @@
                                                 <li>{{ $requirement }}</li>
                                             @endforeach
                                         </ul>
+                                    </div>
+                                    
+                                    <div class="flex justify-end space-x-2 mt-4">
+                                        <a href="{{ route('admin.scholarships.edit', $scholarship) }}" 
+                                            class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('admin.scholarships.destroy', $scholarship) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded"
+                                                onclick="return confirm('Are you sure you want to delete this scholarship?')">
+                                                Delete
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
