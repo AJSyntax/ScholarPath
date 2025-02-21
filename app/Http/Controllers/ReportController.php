@@ -17,22 +17,25 @@ class ReportController extends Controller
 
     public function scholarships(Request $request)
     {
-        $query = Scholarship::query();
+        $scholars = ScholarshipApplication::with(['user', 'scholarship'])
+            ->where('status', 'approved')
+            ->whereHas('scholarship', function ($query) use ($request) {
+                if ($request->filled('status')) {
+                    $query->where('status', $request->status);
+                }
+            })
+            ->when($request->filled('date_from'), function ($query) use ($request) {
+                $query->where('created_at', '>=', $request->date_from);
+            })
+            ->when($request->filled('date_to'), function ($query) use ($request) {
+                $query->where('created_at', '<=', $request->date_to);
+            })
+            ->latest()
+            ->paginate(15);
 
-        // Apply filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to);
-        }
+        $courses = ScholarshipApplication::distinct()->pluck('course')->filter();
 
-        $scholarships = $query->withCount('applications')->latest()->paginate(15);
-
-        return view('admin.reports.scholarships', compact('scholarships'));
+        return view('admin.reports.scholarships', compact('scholars', 'courses'));
     }
 
     public function applications(Request $request)

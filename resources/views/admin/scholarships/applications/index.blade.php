@@ -40,7 +40,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">{{ $application->scholarship->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ $application->scholarship->type }}</div>
+                                            <div class="text-sm text-gray-500">{{ ucfirst($application->scholarship->type) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">{{ $application->course }}</div>
@@ -51,41 +51,6 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $application->status === 'approved' ? 'bg-green-100 text-green-800' : 
-                                                   ($application->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                                {{ ucfirst($application->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('admin.applications.show', $application) }}" class="text-indigo-600 hover:text-indigo-900">View Details</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($applications as $application)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $application->user->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ $application->user->email }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $application->scholarship->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ ucfirst($application->scholarship->type) }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $application->course }}</div>
-                                            <div class="text-sm text-gray-500">Year {{ $application->year_level }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $application->gpa }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 {{ $application->status === 'approved' ? 'bg-green-100 text-green-800' : 
                                                    ($application->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
                                                 {{ ucfirst($application->status) }}

@@ -49,6 +49,11 @@ class ScholarshipApplication extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function studentProfile()
+    {
+        return $this->hasOneThrough(StudentProfile::class, User::class, 'id', 'user_id', 'user_id');
+    }
+
     public function scholarship()
     {
         return $this->belongsTo(Scholarship::class);

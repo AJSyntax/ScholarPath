@@ -10,15 +10,17 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create admin user
-        User::create([
+        // Create admin user if not exists
+        User::firstOrCreate(
+            ['email' => 'admin@scholarpath.test'],
+            [
             'name' => 'Admin User',
             'email' => 'admin@scholarpath.test',
             'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
 
-        // Create test students
+        // Create test students if not exist
         $students = [
             ['name' => 'John Smith', 'email' => 'john@scholarpath.test'],
             ['name' => 'Maria Garcia', 'email' => 'maria@scholarpath.test'],
@@ -38,7 +40,9 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($students as $student) {
-            User::create([
+            User::firstOrCreate(
+                ['email' => $student['email']],
+                [
                 'name' => $student['name'],
                 'email' => $student['email'],
                 'password' => Hash::make('password'),

@@ -7,7 +7,7 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Student\ScholarshipController as StudentScholarshipController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\ScholarshipController;
-use App\Http\Controllers\ScholarshipApplicationController;
+use App\Http\Controllers\Admin\ScholarshipApplicationController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
@@ -46,9 +46,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('destroy');
         
         // Application Management
-        Route::get('/applications', [ScholarshipApplicationController::class, 'adminIndex'])->name('applications.index');
-        Route::get('/applications/{application}', [ScholarshipApplicationController::class, 'adminShow'])->name('applications.show');
-        Route::patch('/applications/{application}/status', [ScholarshipApplicationController::class, 'adminUpdateStatus'])->name('applications.update-status');
+        Route::get('/applications', [ScholarshipApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/{application}', [ScholarshipApplicationController::class, 'show'])->name('applications.show');
+        Route::patch('/applications/{application}/status', [ScholarshipApplicationController::class, 'updateStatus'])->name('applications.update-status');
         Route::get('/applications/{application}/document/{document}', [ScholarshipApplicationController::class, 'downloadDocument'])->name('applications.download-document');
     });
 
