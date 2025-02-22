@@ -13,7 +13,11 @@ class ReportController extends Controller
 {
     public function index()
     {
-        return view('admin.reports.index');
+        $totalScholars = ScholarshipApplication::where('status', 'approved')->count();
+        $pendingApplications = ScholarshipApplication::where('status', 'pending')->count();
+        $totalScholarships = Scholarship::count();
+
+        return view('admin.reports.index', compact('totalScholars', 'pendingApplications', 'totalScholarships'));
     }
 
     public function scholarships(Request $request)

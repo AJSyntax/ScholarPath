@@ -9,6 +9,8 @@ use App\Http\Controllers\Student\ScholarshipController as StudentScholarshipCont
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\GradeEvaluationController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,38 +26,21 @@ Route::get('/dashboard', function () {
 
 // Common Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile'); // Added this line
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile'); 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Test database connection
-Route::get('/db-test', function () {
-    try {
-        $pdo = DB::connection()->getPdo();
-        $database = DB::connection()->getDatabaseName();
-        
-        // Test a simple query
-        $result = DB::select('SELECT current_timestamp');
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => "Connected successfully to Supabase PostgreSQL database: {$database}",
-            'timestamp' => $result[0]->current_timestamp,
-            'driver' => DB::connection()->getDriverName(),
-            'version' => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Database connection failed: ' . $e->getMessage()
-        ], 500);
-    }
+// Authentication Routes
+Route::middleware('auth')->group(function () {
+    // Logout Route
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+        ->name('logout');
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -76,6 +61,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/{scholarship}/edit', [AdminScholarshipController::class, 'edit'])->name('edit');
         Route::put('/{scholarship}', [AdminScholarshipController::class, 'update'])->name('update');
         Route::delete('/{scholarship}', [AdminScholarshipController::class, 'destroy'])->name('destroy');
+    });
+
+    // Grade Evaluation Routes
+    Route::prefix('grades')->name('grades.')->group(function () {
+        Route::get('/upload', [GradeEvaluationController::class, 'index'])->name('upload');
+        Route::post('/process', [GradeEvaluationController::class, 'processGrades'])->name('process');
     });
 
     // Reports
