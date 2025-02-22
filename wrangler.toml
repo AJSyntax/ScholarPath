@@ -1,0 +1,20 @@
+name = "scholarpath"
+type = "webpack"
+account_id = "c0d8097d676db943630ce9bd340a70fd"
+workers_dev = true
+
+[site]
+bucket = "./public"
+entry-point = "workers-site"
+
+[env.production]
+workers_dev = false
+route = "scholarpath.pages.dev/*"
+
+[build]
+command = "npm run build && php artisan config:cache"
+output_dir = "public"
+
+[build.environment]
+NODE_VERSION = "16"
+PHP_VERSION = "8.1"
