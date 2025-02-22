@@ -15,6 +15,63 @@ class ScholarshipController extends Controller
         return view('admin.scholarships.index', compact('scholarships'));
     }
 
+    public function create()
+    {
+        return view('admin.scholarships.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'requirements' => 'required|array',
+            'discount_percentage' => 'required|numeric|min:0|max:100',
+            'status' => 'required|in:active,inactive',
+            'type' => 'required|in:academic,presidential,ched',
+        ]);
+
+        Scholarship::create($validated);
+
+        return redirect()->route('admin.scholarships.index')
+            ->with('success', 'Scholarship created successfully.');
+    }
+
+    public function show(Scholarship $scholarship)
+    {
+        return view('admin.scholarships.show', compact('scholarship'));
+    }
+
+    public function edit(Scholarship $scholarship)
+    {
+        return view('admin.scholarships.edit', compact('scholarship'));
+    }
+
+    public function update(Request $request, Scholarship $scholarship)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'requirements' => 'required|array',
+            'discount_percentage' => 'required|numeric|min:0|max:100',
+            'status' => 'required|in:active,inactive',
+            'type' => 'required|in:academic,presidential,ched',
+        ]);
+
+        $scholarship->update($validated);
+
+        return redirect()->route('admin.scholarships.show', $scholarship)
+            ->with('success', 'Scholarship updated successfully.');
+    }
+
+    public function destroy(Scholarship $scholarship)
+    {
+        $scholarship->delete();
+
+        return redirect()->route('admin.scholarships.index')
+            ->with('success', 'Scholarship deleted successfully.');
+    }
+
     public function applications()
     {
         $applications = ScholarshipApplication::with(['user', 'scholarship'])

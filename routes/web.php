@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipController;
+use App\Http\Controllers\Admin\ScholarshipApplicationController as AdminScholarshipApplicationController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\ScholarshipController as StudentScholarshipController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\ScholarshipController;
-use App\Http\Controllers\Admin\ScholarshipApplicationController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
@@ -37,19 +37,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Scholarship Management
     Route::prefix('scholarships')->name('scholarships.')->group(function () {
-        Route::get('/', [ScholarshipController::class, 'index'])->name('index');
-        Route::get('/create', [ScholarshipController::class, 'create'])->name('create');
-        Route::post('/', [ScholarshipController::class, 'store'])->name('store');
-        Route::get('/{scholarship}', [ScholarshipController::class, 'show'])->name('show');
-        Route::get('/{scholarship}/edit', [ScholarshipController::class, 'edit'])->name('edit');
-        Route::put('/{scholarship}', [ScholarshipController::class, 'update'])->name('update');
-        Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('destroy');
+        Route::get('/', [AdminScholarshipController::class, 'index'])->name('index');
+        Route::get('/create', [AdminScholarshipController::class, 'create'])->name('create');
+        Route::post('/', [AdminScholarshipController::class, 'store'])->name('store');
         
         // Application Management
-        Route::get('/applications', [ScholarshipApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/{application}', [ScholarshipApplicationController::class, 'show'])->name('applications.show');
-        Route::patch('/applications/{application}/status', [ScholarshipApplicationController::class, 'updateStatus'])->name('applications.update-status');
-        Route::get('/applications/{application}/document/{document}', [ScholarshipApplicationController::class, 'downloadDocument'])->name('applications.download-document');
+        Route::get('/applications', [AdminScholarshipApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/{application}', [AdminScholarshipApplicationController::class, 'show'])->name('applications.show');
+        Route::patch('/applications/{application}/status', [AdminScholarshipApplicationController::class, 'updateStatus'])->name('applications.update-status');
+        Route::get('/applications/{application}/document/{document}', [AdminScholarshipApplicationController::class, 'downloadDocument'])->name('applications.download-document');
+        
+        // Single Scholarship Routes
+        Route::get('/{scholarship}', [AdminScholarshipController::class, 'show'])->name('show');
+        Route::get('/{scholarship}/edit', [AdminScholarshipController::class, 'edit'])->name('edit');
+        Route::put('/{scholarship}', [AdminScholarshipController::class, 'update'])->name('update');
+        Route::delete('/{scholarship}', [AdminScholarshipController::class, 'destroy'])->name('destroy');
     });
 
     // Reports

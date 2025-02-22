@@ -12,7 +12,7 @@ class ScholarshipApplicationController extends Controller
     {
         $applications = ScholarshipApplication::with(['user', 'scholarship'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
         return view('admin.scholarships.applications.index', compact('applications'));
     }

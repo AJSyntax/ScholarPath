@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Scholarship;
 use App\Models\ScholarshipApplication;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use League\Csv\Writer;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -17,25 +18,122 @@ class ReportController extends Controller
 
     public function scholarships(Request $request)
     {
+        $scholarTypes = ['academic', 'presidential', 'ched'];
+        $type = $request->input('type', $scholarTypes[0]);
+        $semester = $request->input('semester', 'First');
+        $academicYear = Carbon::now()->format('Y') . '-' . (Carbon::now()->addYear()->format('Y'));
+
+        // Get approved scholars for the specified type
         $scholars = ScholarshipApplication::with(['user', 'scholarship'])
             ->where('status', 'approved')
-            ->whereHas('scholarship', function ($query) use ($request) {
-                if ($request->filled('status')) {
-                    $query->where('status', $request->status);
-                }
+            ->whereHas('scholarship', function($query) use ($type) {
+                $query->where('type', $type);
             })
-            ->when($request->filled('date_from'), function ($query) use ($request) {
-                $query->where('created_at', '>=', $request->date_from);
-            })
-            ->when($request->filled('date_to'), function ($query) use ($request) {
-                $query->where('created_at', '<=', $request->date_to);
-            })
-            ->latest()
-            ->paginate(15);
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $courses = ScholarshipApplication::distinct()->pluck('course')->filter();
+        if ($request->ajax()) {
+            return response()->json([
+                'scholars' => $scholars,
+                'type' => $type,
+                'semester' => $semester,
+                'academicYear' => $academicYear
+            ]);
+        }
 
-        return view('admin.reports.scholarships', compact('scholars', 'courses'));
+        return view('admin.reports.scholarships', compact('scholars', 'scholarTypes', 'type', 'semester', 'academicYear'));
+    }
+
+    public function exportScholarships(Request $request)
+    {
+        $type = $request->input('type', 'academic');
+        $semester = $request->input('semester', 'First');
+        $academicYear = Carbon::now()->format('Y') . '-' . (Carbon::now()->addYear()->format('Y'));
+
+        // Get approved scholars for the specified type
+        $scholars = ScholarshipApplication::with(['user', 'scholarship'])
+            ->where('status', 'approved')
+            ->whereHas('scholarship', function($query) use ($type) {
+                $query->where('type', $type);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Create CSV content
+        $headers = [
+            'NO.',
+            'ID #',
+            'NAME OF SCHOLARS',
+            'COURSE & YEAR',
+            'GPA',
+            'LEAST GRADE',
+            'STATUS',
+            'PRIVILEGES',
+            'REMARKS'
+        ];
+
+        // Create CSV content
+        $csvContent = implode(',', $headers) . "\n";
+
+        foreach ($scholars as $index => $scholar) {
+            $privileges = match($type) {
+                'academic' => "Full Free Grant (Free Tuition, Miscellaneous and Laboratory Fees including LMS)",
+                'presidential' => "Php 1,500 worth of Books per semester",
+                default => "Standard scholarship benefits"
+            };
+
+            $row = [
+                $index + 1,
+                $scholar->user->student_id,
+                strtoupper($scholar->user->name),
+                $scholar->course . '-' . $scholar->year_level,
+                number_format($scholar->current_gpa, 2),
+                $scholar->lowest_grade,
+                'SUMMA CUM LAUDE',
+                $privileges,
+                $scholar->created_at->format('Y') == date('Y') ? 'NEW' : ''
+            ];
+
+            // Escape fields that might contain commas and wrap in quotes
+            $row = array_map(function($field) {
+                return '"' . str_replace('"', '""', $field) . '"';
+            }, $row);
+
+            $csvContent .= implode(',', $row) . "\n";
+        }
+
+        // Add UTF-8 BOM to ensure Excel reads special characters correctly
+        $csvContent = "\xEF\xBB\xBF" . $csvContent;
+
+        // Generate filename
+        $filename = strtolower($type) . '_scholars_' . date('Y-m-d') . '.csv';
+
+        // Return the CSV file
+        return Response::make($csvContent, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ]);
+    }
+
+    public function previewScholarships(Request $request)
+    {
+        $type = $request->input('type', 'academic');
+        $semester = $request->input('semester', 'First');
+        $academicYear = Carbon::now()->format('Y') . '-' . (Carbon::now()->addYear()->format('Y'));
+
+        // Get approved scholars for the specified type
+        $scholars = ScholarshipApplication::with(['user', 'scholarship'])
+            ->where('status', 'approved')
+            ->whereHas('scholarship', function($query) use ($type) {
+                $query->where('type', $type);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.reports.preview-scholars', compact('scholars', 'type', 'semester', 'academicYear'));
     }
 
     public function applications(Request $request)
@@ -60,55 +158,6 @@ class ReportController extends Controller
         $scholarships = Scholarship::pluck('title', 'id'); // For filter dropdown
 
         return view('admin.reports.applications', compact('applications', 'scholarships'));
-    }
-
-    public function exportScholarships(Request $request)
-    {
-        $query = Scholarship::query();
-
-        // Apply filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to);
-        }
-
-        $scholarships = $query->withCount('applications')->get();
-
-        // Create CSV
-        $csv = Writer::createFromString('');
-        $csv->insertOne([
-            'Title',
-            'Description',
-            'Amount',
-            'Deadline',
-            'Status',
-            'Applications Count',
-            'Created At'
-        ]);
-
-        foreach ($scholarships as $scholarship) {
-            $csv->insertOne([
-                $scholarship->title,
-                $scholarship->description,
-                $scholarship->amount,
-                $scholarship->deadline,
-                $scholarship->status,
-                $scholarship->applications_count,
-                $scholarship->created_at
-            ]);
-        }
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="scholarships-report.csv"',
-        ];
-
-        return Response::make($csv->toString(), 200, $headers);
     }
 
     public function exportApplications(Request $request)

@@ -22,7 +22,7 @@ class CheckRole
             abort(401, 'Unauthenticated.');
         }
 
-        if ($request->user()->role !== $role) {
+        if (!$request->user()->hasRole($role)) {
             abort(403, 'Unauthorized. Required role: ' . $role);
         }
 
