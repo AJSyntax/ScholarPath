@@ -30,6 +30,30 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Test database connection
+Route::get('/db-test', function () {
+    try {
+        $pdo = DB::connection()->getPdo();
+        $database = DB::connection()->getDatabaseName();
+        
+        // Test a simple query
+        $result = DB::select('SELECT current_timestamp');
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => "Connected successfully to Supabase PostgreSQL database: {$database}",
+            'timestamp' => $result[0]->current_timestamp,
+            'driver' => DB::connection()->getDriverName(),
+            'version' => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Database connection failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard

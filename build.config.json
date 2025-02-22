@@ -1,5 +1,5 @@
 {
-    "buildCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install && npm run build && php artisan config:cache",
+    "buildCommand": "apt-get update && apt-get install -y php8.1-pgsql && curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install && npm run build && php artisan config:cache",
     "installCommand": "php -v",
     "outputDirectory": "public",
     "routes": [
