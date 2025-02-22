@@ -1,0 +1,13 @@
+{
+    "buildCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader && npm install && npm run build && php artisan config:cache",
+    "installCommand": "php -v",
+    "outputDirectory": "public",
+    "routes": [
+        { "handle": "filesystem" },
+        { "src": "/(.*)", "dest": "/index.php" }
+    ],
+    "framework": "laravel",
+    "environment": {
+        "PHP_VERSION": "8.1"
+    }
+}
