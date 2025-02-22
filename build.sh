@@ -8,7 +8,7 @@ cd php-src-php-8.1.0
 make
 make install
 cd ..
-
+NODE_VERSION=18
 # Install Composer
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 php composer-setup.php --install-dir=/usr/local/bin --filename=composer
