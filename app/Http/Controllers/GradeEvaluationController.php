@@ -11,7 +11,11 @@ class GradeEvaluationController extends Controller
 {
     public function index()
     {
-        return view('admin.grades.upload');
+        $scholars = User::whereHas('scholarshipApplications', function($query) {
+            $query->where('status', 'active');
+        })->get();
+
+        return view('admin.grades.upload', compact('scholars'));
     }
 
     public function processGrades(Request $request)

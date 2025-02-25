@@ -20,6 +20,8 @@ class StudentProfile extends Model
         'parent_name',
         'parent_contact',
         'current_gpa',
+        'status',
+        'scholarship_type'
     ];
 
     protected $casts = [
@@ -32,8 +34,8 @@ class StudentProfile extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getFullNameAttribute()
+    public function scholarshipApplications()
     {
-        return $this->user->name;
+        return $this->hasMany(ScholarshipApplication::class, 'user_id', 'user_id');
     }
 }
