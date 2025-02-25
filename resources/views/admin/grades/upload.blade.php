@@ -5,67 +5,92 @@
         </h2>
     </x-slot>
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="p-6">
-                @if (session('success'))
-                    <div class="mb-4 px-4 py-2 bg-green-100 border border-green-400 text-green-700 rounded">
-                        {{ session('success') }}
-                    </div>
-                @endif
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    @if(session('success'))
+                        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-                @if (session('error'))
-                    <div class="mb-4 px-4 py-2 bg-red-100 border border-red-400 text-red-700 rounded">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                    @if(session('error'))
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-                <form action="{{ route('admin.grades.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    @csrf
                     <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Upload Grades File</h3>
+                        <h3 class="text-lg font-semibold mb-2">1st Semester S.Y. 2024 - 2025 Grade Upload</h3>
                         <p class="text-sm text-gray-600 mb-4">
-                            Please upload a CSV file with the following columns:<br>
-                            School Year, Semester, ID Number, Subject, Description, Type, Units, Midterm, Finals<br><br>
-                            <span class="font-medium">Important:</span> Save your Excel file as CSV (Comma delimited) before uploading.
+                            Please ensure your CSV file follows this format:<br>
+                            Subject, Description, Type, Units, Midterm, Finals
                         </p>
-                        
-                        <div class="mt-4">
-                            <input type="file" 
-                                name="grades_file" 
-                                accept=".csv,.txt"
-                                class="block w-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-blue-50 file:text-blue-700
-                                    hover:file:bg-blue-100"
-                                required
-                            />
-                            @error('grades_file')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <p class="text-sm font-medium mb-2">Example Format:</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-xs">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="px-4 py-2 text-left">Subject</th>
+                                            <th class="px-4 py-2 text-left">Description</th>
+                                            <th class="px-4 py-2 text-left">Type</th>
+                                            <th class="px-4 py-2 text-left">Units</th>
+                                            <th class="px-4 py-2 text-left">Midterm</th>
+                                            <th class="px-4 py-2 text-left">Finals</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-4 py-2">CC-HCI31</td>
+                                            <td class="px-4 py-2">HUMAN COMPUTER INTERACTION</td>
+                                            <td class="px-4 py-2">LEC</td>
+                                            <td class="px-4 py-2">3</td>
+                                            <td class="px-4 py-2">1.7</td>
+                                            <td class="px-4 py-2">1.6</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="px-4 py-2">CC-RESCOM31</td>
+                                            <td class="px-4 py-2">METHODS OF RESEARCH IN COMPUTING</td>
+                                            <td class="px-4 py-2">LEC</td>
+                                            <td class="px-4 py-2">3</td>
+                                            <td class="px-4 py-2">1.9</td>
+                                            <td class="px-4 py-2">1.8</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                        <h4 class="font-medium text-gray-900 mb-2">Important Notes:</h4>
-                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            <li>Make sure your CSV file follows the exact column structure</li>
-                            <li>The system will calculate GPA based on Finals grades</li>
-                            <li>The least grade will be determined from Finals grades</li>
-                            <li>Student ID Numbers must match existing records</li>
-                        </ul>
-                    </div>
+                    <form action="{{ route('admin.grades.process') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        <div>
+                            <x-input-label for="grades_file" value="Select CSV File" />
+                            <input type="file" id="grades_file" name="grades_file" accept=".csv"
+                                class="mt-1 block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100"
+                                required
+                            />
+                        </div>
 
-                    <div class="flex items-center justify-end mt-6">
-                        <button type="submit" 
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        >
-                            Process Grades
-                        </button>
-                    </div>
-                </form>
+                        @error('grades_file')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+
+                        <div class="flex items-center justify-end mt-6">
+                            <x-primary-button>
+                                {{ __('Upload Grades') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
