@@ -20,13 +20,15 @@ class StudentProfile extends Model
         'parent_name',
         'parent_contact',
         'current_gpa',
+        'least_grade',
         'status',
         'scholarship_type'
     ];
 
     protected $casts = [
         'birth_date' => 'date',
-        'current_gpa' => 'decimal:2'
+        'current_gpa' => 'decimal:2',
+        'least_grade' => 'decimal:2'
     ];
 
     public function user()

@@ -105,44 +105,52 @@ class Upload extends Component
                 if (!is_numeric($units) || !is_numeric($midterm) || !is_numeric($finals)) {
                     throw new \Exception('Units, Midterm, and Finals must be numeric values');
                 }
+
+                // Validate grade range (1.0 is highest, 5.0 is lowest)
+                if ($finals < 1.0 || $finals > 5.0) {
+                    throw new \Exception("Invalid grade {$finals} in Finals column for subject {$record['Subject']}. Grades must be between 1.0 (highest) and 5.0 (lowest)");
+                }
                 
-                // Calculate final grade (average of midterm and finals)
-                $finalGrade = ($midterm + $finals) / 2;
-                
+                // Store finals grade for GPA calculation
                 $grades[] = [
                     'subject' => $record['Subject'],
                     'description' => $record['Description'] ?? '',
                     'type' => $record['Type'] ?? '',
                     'units' => $units,
                     'midterm' => $midterm,
-                    'finals' => $finals,
-                    'final_grade' => $finalGrade
+                    'finals' => $finals
                 ];
 
-                $totalGradePoints += ($finalGrade * $units);
-                $totalUnits += $units;
+                $totalGradePoints += $finals; // Use finals grade directly
+                $totalUnits++; // Count each subject as 1 for average calculation
             }
 
             if (empty($grades)) {
                 throw new \Exception('No valid grades found in the CSV file');
             }
 
-            // Calculate GPA
+            // Calculate GPA as average of finals grades (like Excel's AVERAGE)
             $gpa = $totalGradePoints / $totalUnits;
             
-            // Find lowest grade from final grades
-            $lowestGrade = min(array_column($grades, 'final_grade'));
+            // Find highest numerical grade (worst grade) from finals column (5.0 is worst, 1.0 is best)
+            $leastGrade = max(array_column($grades, 'finals'));
+
+            // Validate grade range
+            if ($leastGrade < 1.0 || $leastGrade > 5.0) {
+                throw new \Exception('Invalid grade found. Grades must be between 1.0 (highest) and 5.0 (lowest)');
+            }
 
             // Update student profile
             $student = StudentProfile::find($this->selectedStudentId);
             $student->current_gpa = number_format($gpa, 2);
+            $student->least_grade = number_format($leastGrade, 2);
             
             // Update status based on scholarship type and lowest grade
-            $student->status = $this->determineScholarshipStatus($student->scholarship_type, $lowestGrade, $gpa);
+            $student->status = $this->determineScholarshipStatus($student->scholarship_type, $leastGrade, $gpa);
             
             $student->save();
 
-            $this->message = "Grades analyzed successfully. GPA: {$student->current_gpa}, Status: {$student->status}";
+            $this->message = "Grades analyzed successfully. GPA: {$student->current_gpa}, Least Grade: {$student->least_grade}, Status: {$student->status}";
             $this->messageType = 'success';
 
         } catch (\Exception $e) {
